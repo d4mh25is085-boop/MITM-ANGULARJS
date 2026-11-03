@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Angular project</title>
+     <script src="node_modules/angular/angular.js"></script>
+     <script src="app.js"></script>
+
+</head>
+<body>
+    
+<div ng-controller="CollegeController">
+
+<h1>Welcome to {{collegeName}}</h1>
+<hr>
+<div ng-controller="StudentController">
+    <h2>{{name}}</h2>
+    <h3>{{department}}</h3>
+</div>
+<h3>{{department}}</h3>
+    </div>
+
+</body>
+</html>
