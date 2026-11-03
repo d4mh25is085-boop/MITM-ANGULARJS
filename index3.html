@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html ng-app="libraryApp">
+<head>
+    <title>Library Management System</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+
+        .container {
+            width: 70%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .book {
+            background: #e6f2ff;
+            margin: 10px;
+            padding: 12px;
+            border-radius: 5px;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 8px 15px;
+            background: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .delete {
+            background: red;
+        }
+    </style>
+</head>
+
+<body ng-controller="ParentController">
+
+<div class="container">
+
+    <h1>📚 Library Management System</h1>
+
+    <h3>Parent Controller</h3>
+
+    <p>Library Name: {{libraryName}}</p>
+
+    <div ng-controller="ChildController">
+
+        <h3>Add New Book</h3>
+
+        <!-- Two-way data binding -->
+        <input type="text"
+               ng-model="newBook.name"
+               placeholder="Enter Book Name">
+
+        <input type="text"
+               ng-model="newBook.author"
+               placeholder="Enter Author Name">
+
+        <button ng-click="addBook()">Add Book</button>
+
+        <hr>
+
+        <h2>Available Books</h2>
+
+        <p>Total Books: {{books.length}}</p>
+
+        <!-- Display multiple books -->
+        <div class="book" ng-repeat="book in books">
+
+            <h3>{{book.name}}</h3>
+
+            <p>Author: {{book.author}}</p>
+
+            <button class="delete"
+                    ng-click="deleteBook($index)">
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    // Creating AngularJS application
+    var app = angular.module("libraryApp", []);
+
+    // Parent Controller
+    app.controller("ParentController", function($scope) {
+
+        $scope.libraryName = "Central Public Library";
+
+    });
+
+    // Child Controller
+    app.controller("ChildController", function($scope) {
+
+        $scope.books = [
+            {name: "The Alchemist", author: "Paulo Coelho"},
+            {name: "Wings of Fire", author: "A.P.J. Abdul Kalam"},
+            {name: "Harry Potter", author: "J.K. Rowling"},
+            {name: "The Jungle Book", author: "Rudyard Kipling"},
+            {name: "Rich Dad Poor Dad", author: "Robert Kiyosaki"}
+        ];
+
+        $scope.newBook = {};
+
+        // Add a new book
+        $scope.addBook = function() {
+
+            if ($scope.newBook.name && $scope.newBook.author) {
+
+                $scope.books.push({
+                    name: $scope.newBook.name,
+                    author: $scope.newBook.author
+                });
+
+                $scope.newBook = {};
+            }
+            else {
+                alert("Please enter book name and author!");
+            }
+        };
+
+        // Delete a book
+        $scope.deleteBook = function(index) {
+
+            $scope.books.splice(index, 1);
+
+        };
+
+    });
+
+</script>
+
+</body>
+</html>
