@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="campusFestApp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Fest | Event Registration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- AngularJS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+  <!-- Supabase JavaScript client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body ng-controller="FestController as vm">
+  <nav class="navbar">
+    <a class="brand" href="#" ng-click="vm.goHome()">
+      <span class="brand-mark">CF</span>
+      <span>campus<span class="brand-light">fest</span><small>YOUR CAMPUS. YOUR STAGE.</small></span>
+    </a>
+    <div class="nav-actions">
+      <button class="nav-link" ng-click="vm.showMyRegistrations()" ng-if="vm.user">My registrations</button>
+      <span class="user-chip" ng-if="vm.user">{{vm.user.email}}</span>
+      <button class="btn btn-outline btn-small" ng-if="!vm.user" ng-click="vm.openAuth('login')">Sign in</button>
+      <button class="btn btn-primary btn-small" ng-if="!vm.user" ng-click="vm.openAuth('signup')">Create account</button>
+      <button class="btn btn-outline btn-small" ng-if="vm.user" ng-click="vm.signOut()">Sign out</button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="hero-glow"></div>
+      <div class="hero-content">
+        <div class="eyebrow"><span class="live-dot"></span> THE BIGGEST CAMPUS CELEBRATION</div>
+        <h1>Make your moment.<br><span>Find your people.</span></h1>
+        <p>Discover workshops, competitions and performances. Pick your event, reserve your seat, and be part of the campus story.</p>
+        <div class="hero-actions">
+          <a class="btn btn-white" href="#events">Explore events <span>↘</span></a>
+          <span class="hero-note">20–22 NOVEMBER 2026 <i>·</i> CAMPUS GROUNDS</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="hero-disc"><span>FEST<br>’26</span></div>
+        <div class="float-tag tag-one">✦ CREATE</div><div class="float-tag tag-two">⚡ COMPETE</div>
+        <div class="float-tag tag-three">♫ CELEBRATE</div>
+      </div>
+      <div class="hero-bottom"><span>IDEAS TO ACTION</span><span>SCROLL TO DISCOVER ↓</span></div>
+    </section>
+
+    <section class="stats-row">
+      <div><strong>{{vm.events.length}}</strong><span>CURATED EVENTS</span></div>
+      <div><strong>4</strong><span>EXCITING CATEGORIES</span></div>
+      <div><strong>3</strong><span>DAYS OF EXPERIENCES</span></div>
+      <div><strong>∞</strong><span>MEMORIES TO MAKE</span></div>
+    </section>
+
+    <section class="events-section" id="events">
+      <div class="section-heading">
+        <div><div class="eyebrow dark-eyebrow">FIND YOUR NEXT EXPERIENCE</div><h2>Explore the events<span>.</span></h2></div>
+        <div class="search-wrap"><span>⌕</span><input type="search" ng-model="vm.searchText" placeholder="Search event, speaker or venue..."></div>
+      </div>
+      <div class="filter-row">
+        <button class="filter-pill" ng-class="{'active':vm.activeCategory==='All'}" ng-click="vm.setCategory('All')">All events <b>{{vm.events.length}}</b></button>
+        <button class="filter-pill" ng-class="{'active':vm.activeCategory===cat}" ng-repeat="cat in vm.categories" ng-click="vm.setCategory(cat)">{{cat}}</button>
+      </div>
+
+      <div class="notice" ng-if="!vm.configured">
+        <strong>Demo mode:</strong> Add your Supabase URL and anon key in <code>app.js</code>, then run the SQL in <code>supabase.sql</code> to enable live registration.
+      </div>
+      <div class="event-grid">
+        <article class="event-card" ng-repeat="event in vm.filteredEvents() track by event.id">
+          <div class="event-cover" ng-class="'cover-'+($index % 6)">
+            <span class="cover-label">{{event.category}}</span>
+            <span class="cover-symbol">{{vm.categoryIcon(event.category)}}</span>
+            <span class="cover-date">{{vm.prettyDate(event.date)}}</span>
+          </div>
+          <div class="event-body">
+            <div class="event-meta"><span>📍 {{event.venue}}</span><span>{{vm.prettyTime(event.event_time)}}</span></div>
+            <h3>{{event.title}}</h3>
+            <p>{{event.description}}</p>
+            <div class="seat-line"><span>{{event.remaining_seats}} seats left</span><span>{{event.max_seats}} total</span></div>
+            <div class="seat-track"><span ng-style="{width: vm.seatPercent(event)+'%'}"></span></div>
+            <div class="card-footer">
+              <span class="status" ng-class="{'sold-out':event.remaining_seats===0}">{{event.remaining_seats===0 ? 'SOLD OUT' : 'REGISTRATION OPEN'}}</span>
+              <button class="btn btn-primary btn-small" ng-disabled="event.remaining_seats===0" ng-click="vm.openRegister(event)">{{event.remaining_seats===0 ? 'Full' : 'Register'}} <span ng-if="event.remaining_seats!==0">↗</span></button>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="empty-state" ng-if="vm.filteredEvents().length===0">No events match your search. Try another keyword or category.</div>
+    </section>
+
+    <section class="footer-cta">
+      <div><div class="eyebrow">DON'T JUST HEAR ABOUT IT</div><h2>Your campus story<br>starts here.</h2></div>
+      <a href="#events" class="btn btn-white">Find an event ↗</a>
+    </section>
+  </main>
+
+  <footer><a class="brand footer-brand" href="#"><span class="brand-mark">CF</span><span>campus<span class="brand-light">fest</span><small>YOUR CAMPUS. YOUR STAGE.</small></span></a><span>Made for campus memories. © 2026 CampusFest.</span></footer>
+
+  <!-- Authentication modal -->
+  <div class="modal-backdrop" ng-show="vm.authOpen" ng-click="vm.closeAuth()">
+    <section class="modal auth-modal" ng-click="$event.stopPropagation()">
+      <button class="close-btn" ng-click="vm.closeAuth()">×</button>
+      <div class="eyebrow dark-eyebrow">WELCOME TO CAMPUSFEST</div>
+      <h2>{{vm.authMode==='signup' ? 'Create your account' : 'Welcome back'}}</h2>
+      <p class="modal-sub">Sign in to reserve your place at the events you love.</p>
+      <form ng-submit="vm.submitAuth()">
+        <label>Email address<input type="email" ng-model="vm.auth.email" placeholder="you@college.edu" required></label>
+        <label>Password<input type="password" ng-model="vm.auth.password" placeholder="At least 6 characters" minlength="6" required></label>
+        <button class="btn btn-primary btn-full" type="submit" ng-disabled="vm.busy">{{vm.busy ? 'Please wait...' : (vm.authMode==='signup' ? 'Create account' : 'Sign in')}}</button>
+      </form>
+      <p class="switch-auth">{{vm.authMode==='signup' ? 'Already have an account?' : 'New to CampusFest?'}} <button ng-click="vm.toggleAuthMode()">{{vm.authMode==='signup' ? 'Sign in' : 'Create account'}}</button></p>
+      <p class="form-message" ng-if="vm.authMessage">{{vm.authMessage}}</p>
+    </section>
+  </div>
+
+  <!-- RSVP modal -->
+  <div class="modal-backdrop" ng-show="vm.registerOpen" ng-click="vm.closeRegister()">
+    <section class="modal" ng-click="$event.stopPropagation()">
+      <button class="close-btn" ng-click="vm.closeRegister()">×</button>
+      <div class="eyebrow dark-eyebrow">SAVE YOUR SEAT</div>
+      <h2>{{vm.selectedEvent.title}}</h2>
+      <p class="modal-sub">{{vm.selectedEvent.venue}} · {{vm.prettyDate(vm.selectedEvent.date)}} · {{vm.selectedEvent.remaining_seats}} seats remaining</p>
+      <form ng-submit="vm.registerForEvent()">
+        <div class="form-grid">
+          <label>Student name<input ng-model="vm.rsvp.name" placeholder="Your full name" required></label>
+          <label>USN / Student ID<input ng-model="vm.rsvp.usn" placeholder="e.g. 4XX23CS001" required></label>
+          <label>College email<input type="email" ng-model="vm.rsvp.email" placeholder="name@college.edu" required></label>
+          <label>Phone number<input type="tel" ng-model="vm.rsvp.phone" placeholder="10-digit phone number" pattern="[0-9+() -]{8,18}" required></label>
+        </div>
+        <p class="form-message" ng-if="vm.registerMessage">{{vm.registerMessage}}</p>
+        <button class="btn btn-primary btn-full" type="submit" ng-disabled="vm.busy || vm.selectedEvent.remaining_seats===0">{{vm.busy ? 'Reserving seat...' : 'Confirm my registration →'}}</button>
+        <p class="fine-print">One registration per student for each event. You can cancel before the event's cancellation deadline.</p>
+      </form>
+    </section>
+  </div>
+
+  <!-- My registrations drawer -->
+  <div class="drawer-backdrop" ng-show="vm.drawerOpen" ng-click="vm.closeDrawer()">
+    <aside class="drawer" ng-click="$event.stopPropagation()">
+      <div class="drawer-head"><div><div class="eyebrow dark-eyebrow">YOUR FEST SCHEDULE</div><h2>My registrations</h2></div><button class="close-btn" ng-click="vm.closeDrawer()">×</button></div>
+      <div class="registration-item" ng-repeat="reg in vm.myRegistrations track by reg.id">
+        <div class="mini-cover" ng-class="'cover-'+($index % 6)">{{vm.categoryIcon(reg.event.category)}}</div>
+        <div class="registration-info"><span class="tiny-category">{{reg.event.category}}</span><strong>{{reg.event.title}}</strong><small>{{vm.prettyDate(reg.event.date)}} · {{reg.event.venue}}</small><span class="pass-code">PASS #{{reg.id | limitTo:8}}</span></div>
+        <button class="cancel-link" ng-click="vm.cancelRegistration(reg)" ng-disabled="vm.busy">Cancel</button>
+      </div>
+      <div class="empty-state" ng-if="vm.myRegistrations.length===0">You haven't registered for an event yet. Explore the event list to get started.</div>
+      <p class="form-message" ng-if="vm.drawerMessage">{{vm.drawerMessage}}</p>
+    </aside>
+  </div>
+
+  <div class="toast" ng-class="{'show':vm.toast}">{{vm.toast}}</div>
+  <script src="app.js"></script>
+</body>
+</html>

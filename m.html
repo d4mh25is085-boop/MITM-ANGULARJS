@@ -1,0 +1,548 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusFest - Event Registration</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f4f6fb;
+  color: #202b43;
+}
+
+header {
+  background: #172554;
+  color: white;
+  padding: 22px 7%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+header h2 { font-size: 25px; }
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 22px;
+  font-size: 14px;
+}
+
+.hero {
+  padding: 65px 7%;
+  background: linear-gradient(120deg,#1e3a8a,#6366f1);
+  color: white;
+}
+
+.hero h1 {
+  font-size: 38px;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.container {
+  padding: 35px 7%;
+}
+
+.section-title {
+  margin-bottom: 20px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+button, input, select {
+  padding: 11px 15px;
+  border-radius: 7px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.filters button {
+  background: white;
+  cursor: pointer;
+}
+
+.filters button.active,
+.primary {
+  background: #4f46e5;
+  color: white;
+  border: none;
+}
+
+.search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.events {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+  gap: 22px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 14px #0000000c;
+  transition: .2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.event-image {
+  height: 145px;
+  display: grid;
+  place-items: center;
+  font-size: 55px;
+  background: linear-gradient(135deg,#dbeafe,#c7d2fe);
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.tag {
+  color: #4f46e5;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.card h3 {
+  margin: 12px 0;
+}
+
+.card p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.seats {
+  margin: 15px 0;
+  font-size: 13px;
+  color: #475569;
+}
+
+.card button {
+  width: 100%;
+  cursor: pointer;
+}
+
+.primary {
+  cursor: pointer;
+}
+
+.primary:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.registrations {
+  margin-top: 50px;
+}
+
+.registration-item {
+  background: white;
+  padding: 17px;
+  margin: 12px 0;
+  border-radius: 9px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cancel {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  cursor: pointer;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #0009;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  z-index: 10;
+}
+
+.modal-box {
+  background: white;
+  padding: 28px;
+  border-radius: 13px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.modal-box h2 {
+  margin-bottom: 18px;
+}
+
+.modal-box input {
+  width: 100%;
+  margin-bottom: 13px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions button {
+  flex: 1;
+  cursor: pointer;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  background: #172554;
+  color: white;
+  margin-top: 45px;
+}
+
+@media(max-width:600px) {
+  .hero h1 { font-size: 28px; }
+  header { flex-direction: column; }
+  nav a { margin: 0 7px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>🎓 CampusFest</h2>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#events">Events</a>
+    <a href="#registrations">My Registrations</a>
+  </nav>
+</header>
+
+<section class="hero" id="home">
+  <h1>Discover. Participate. Celebrate.</h1>
+  <p>
+    Welcome to the College Event Registration Portal.
+    Explore exciting campus events and reserve your seat today!
+  </p>
+</section>
+
+<main class="container" id="events">
+
+  <h2 class="section-title">Explore Events</h2>
+
+  <div class="filters">
+    <button class="active" onclick="filterEvents('All',this)">All</button>
+    <button onclick="filterEvents('Technical',this)">Technical</button>
+    <button onclick="filterEvents('Cultural',this)">Cultural</button>
+    <button onclick="filterEvents('Sports',this)">Sports</button>
+    <input class="search" id="search"
+      placeholder="Search events..."
+      oninput="renderEvents()">
+  </div>
+
+  <div class="events" id="eventList"></div>
+
+  <section class="registrations" id="registrations">
+    <h2 class="section-title">My Registrations</h2>
+    <div id="myRegistrations"></div>
+  </section>
+
+</main>
+
+<div class="modal" id="registrationModal">
+  <div class="modal-box">
+    <h2>Event Registration</h2>
+    <p id="selectedEvent"></p>
+
+    <form id="registrationForm">
+      <input id="studentName" placeholder="Student Full Name" required>
+      <input id="studentUSN" placeholder="University Seat Number" required>
+      <input id="studentEmail" type="email" placeholder="College Email" required>
+      <input id="studentPhone" type="tel"
+        placeholder="Phone Number" pattern="[0-9]{10}" required>
+
+      <div class="modal-actions">
+        <button type="submit" class="primary">Confirm Registration</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 CampusFest | College Event Registration System</p>
+</footer>
+
+<script>
+const initialEvents = [
+  {
+    id: 1,
+    title: "CodeSprint Hackathon",
+    category: "Technical",
+    date: "2026-11-20",
+    venue: "Computer Science Block",
+    seats: 45,
+    maxSeats: 50,
+    icon: "💻",
+    description: "Showcase your coding skills in an exciting 24-hour hackathon."
+  },
+  {
+    id: 2,
+    title: "Battle of the Bands",
+    category: "Cultural",
+    date: "2026-11-21",
+    venue: "College Auditorium",
+    seats: 12,
+    maxSeats: 100,
+    icon: "🎸",
+    description: "Experience amazing music and performances by student bands."
+  },
+  {
+    id: 3,
+    title: "Annual Sports Meet",
+    category: "Sports",
+    date: "2026-11-25",
+    venue: "College Ground",
+    seats: 35,
+    maxSeats: 60,
+    icon: "🏆",
+    description: "Compete in exciting sports competitions and team challenges."
+  },
+  {
+    id: 4,
+    title: "AI Innovation Workshop",
+    category: "Technical",
+    date: "2026-11-28",
+    venue: "Seminar Hall",
+    seats: 30,
+    maxSeats: 40,
+    icon: "🤖",
+    description: "Explore artificial intelligence and practical machine learning."
+  },
+  {
+    id: 5,
+    title: "Dance Competition",
+    category: "Cultural",
+    date: "2026-12-02",
+    venue: "Main Stage",
+    seats: 25,
+    maxSeats: 50,
+    icon: "💃",
+    description: "Show your talent through solo and group dance performances."
+  },
+  {
+    id: 6,
+    title: "Web Development Bootcamp",
+    category: "Technical",
+    date: "2026-12-05",
+    venue: "IT Lab",
+    seats: 20,
+    maxSeats: 30,
+    icon: "🌐",
+    description: "Learn modern web development with hands-on projects."
+  }
+];
+
+let events = JSON.parse(localStorage.getItem("events")) || initialEvents;
+let registrations = JSON.parse(localStorage.getItem("registrations")) || [];
+let currentFilter = "All";
+let selectedEventId = null;
+
+function saveData() {
+  localStorage.setItem("events", JSON.stringify(events));
+  localStorage.setItem("registrations", JSON.stringify(registrations));
+}
+
+function renderEvents() {
+  const list = document.getElementById("eventList");
+  const search = document.getElementById("search").value.toLowerCase();
+
+  const filtered = events.filter(event =>
+    (currentFilter === "All" || event.category === currentFilter) &&
+    (event.title.toLowerCase().includes(search) ||
+     event.venue.toLowerCase().includes(search))
+  );
+
+  list.innerHTML = "";
+
+  if (!filtered.length) {
+    list.innerHTML = "<p>No events found.</p>";
+    return;
+  }
+
+  filtered.forEach(event => {
+    const available = event.maxSeats - event.seats;
+
+    list.innerHTML += `
+      <article class="card">
+        <div class="event-image">${event.icon}</div>
+        <div class="card-content">
+          <span class="tag">${event.category.toUpperCase()}</span>
+          <h3>${event.title}</h3>
+          <p>${event.description}</p>
+          <p>📅 ${event.date}</p>
+          <p>📍 ${event.venue}</p>
+          <div class="seats">
+            Available Seats: ${available} / ${event.maxSeats}
+          </div>
+          <button class="primary"
+            ${available <= 0 ? "disabled" : ""}
+            onclick="openModal(${event.id})">
+            ${available <= 0 ? "Fully Booked" : "Register Now"}
+          </button>
+        </div>
+      </article>
+    `;
+  });
+}
+
+function filterEvents(category, button) {
+  currentFilter = category;
+
+  document.querySelectorAll(".filters button")
+    .forEach(btn => btn.classList.remove("active"));
+
+  button.classList.add("active");
+  renderEvents();
+}
+
+function openModal(id) {
+  selectedEventId = id;
+  const event = events.find(e => e.id === id);
+
+  if (!event || event.seats >= event.maxSeats) return;
+
+  document.getElementById("selectedEvent").textContent =
+    "Registering for: " + event.title;
+
+  document.getElementById("registrationModal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("registrationModal").style.display = "none";
+  document.getElementById("registrationForm").reset();
+}
+
+document.getElementById("registrationForm")
+.addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const event = events.find(e => e.id === selectedEventId);
+
+  if (!event || event.seats >= event.maxSeats) {
+    alert("Sorry! No seats are available.");
+    closeModal();
+    return;
+  }
+
+  const name = document.getElementById("studentName").value.trim();
+  const usn = document.getElementById("studentUSN").value.trim();
+  const email = document.getElementById("studentEmail").value.trim();
+  const phone = document.getElementById("studentPhone").value.trim();
+
+  const duplicate = registrations.some(r =>
+    r.eventId === selectedEventId &&
+    r.usn.toLowerCase() === usn.toLowerCase()
+  );
+
+  if (duplicate) {
+    alert("You are already registered for this event!");
+    return;
+  }
+
+  registrations.push({
+    id: Date.now(),
+    eventId: selectedEventId,
+    eventName: event.title,
+    name,
+    usn,
+    email,
+    phone
+  });
+
+  event.seats++;
+
+  saveData();
+  renderEvents();
+  renderRegistrations();
+  closeModal();
+
+  alert("Registration successful!");
+});
+
+function renderRegistrations() {
+  const container = document.getElementById("myRegistrations");
+
+  if (!registrations.length) {
+    container.innerHTML = "<p>You haven't registered for any events yet.</p>";
+    return;
+  }
+
+  container.innerHTML = registrations.map(r => `
+    <div class="registration-item">
+      <div>
+        <strong>${r.eventName}</strong>
+        <p>${r.name} | ${r.usn}</p>
+        <small>${r.email}</small>
+      </div>
+      <button class="cancel" onclick="cancelRegistration(${r.id})">
+        Cancel Registration
+      </button>
+    </div>
+  `).join("");
+}
+
+function cancelRegistration(id) {
+  if (!confirm("Are you sure you want to cancel?")) return;
+
+  const registration = registrations.find(r => r.id === id);
+
+  if (registration) {
+    const event = events.find(e => e.id === registration.eventId);
+    if (event) event.seats--;
+  }
+
+  registrations = registrations.filter(r => r.id !== id);
+
+  saveData();
+  renderEvents();
+  renderRegistrations();
+}
+
+renderEvents();
+renderRegistrations();
+</script>
+
+</body>
+</html>
+
